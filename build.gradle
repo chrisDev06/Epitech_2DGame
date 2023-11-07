@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+dependencies {
+    // Spécifiez ici les dépendances de votre projet
+    // Par exemple, pour la bibliothèque Java standard :
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/'  // Répertoire contenant vos fichiers source Java
+        }
+        resources {
+            srcDirs 'res'     // Répertoire contenant vos ressources
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+// Configurez ici d'autres paramètres de build au besoin
+

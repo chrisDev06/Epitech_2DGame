@@ -2,50 +2,114 @@ package main;
 
 import javax.swing.JFrame;
 
-public class Game extends JFrame {
-    private boolean isRunning = true; // Un drapeau pour indiquer si le jeu est en cours d'exécution.
-    private long desiredFPS = 60; // Le nombre d'images par seconde souhaité.
-    private long desiredFrameTime = 1000000000 / desiredFPS; // La durée souhaitée d'une frame en nanosecondes.
-    private GameScreen gameScreen; // Une instance de la classe GameScreen, utilisée pour afficher le jeu.
+import scenes.Menu;
+import scenes.Playing;
+import scenes.Settings;
 
-    public void run() {
-        long lastTime = System.nanoTime(); // Moment du dernier rafraîchissement de la boucle de jeu.
-        long currentTime;
+public class Game extends JFrame implements Runnable {
 
-        while (isRunning) { // Une boucle qui continue tant que le jeu est en cours d'exécution.
-            currentTime = System.nanoTime(); // Moment actuel.
-            long elapsedTime = currentTime - lastTime; // Calcul du temps écoulé depuis le dernier rafraîchissement.
+    private GameScreen gameScreen;
+    private Thread gameThread;
 
-            if (elapsedTime >= desiredFrameTime) { 
-                // Mettez ici la logique du jeu (mise à jour des états, détection de collisions)
-                render(); // Appel à la méthode de rendu pour afficher la scène.
+    private final double FPS_SET = 120.0;
+    private final double UPS_SET = 60.0;
 
-                lastTime = currentTime; // Mise à jour du dernier moment de rafraîchissement.
-            } else {
-                // Si la boucle tourne plus vite que le temps souhaité, faites une pause d'1
-                // milliseconde pour économiser des ressources.
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    // Classes
+    private Render render;
+    private Menu menu;
+    private Playing playing;
+    private Settings settings;
+
+    public Game() {
+
+        initClasses();
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        add(gameScreen);
+        pack();
+        setVisible(true);
+
     }
 
-    public void render() {
-        setSize(400, 400); // Définit la taille de la fenêtre du jeu.
-        setVisible(true); // Rend la fenêtre visible.
-        setDefaultCloseOperation(EXIT_ON_CLOSE); // Définit la fermeture de la fenêtre lorsque l'utilisateur clique sur
-                                                 // la croix.
-        setLocationRelativeTo(null); // Centre la fenêtre sur l'écran.
-        gameScreen = new GameScreen(); // Crée une nouvelle instance de GameScreen pour afficher le jeu.
-        add(gameScreen); // Ajoute la zone de jeu (GameScreen) à la fenêtre.
-        System.out.println(desiredFPS); // Affiche le nombre d'images par seconde souhaité dans la console.
+    private void initClasses() {
+        render = new Render(this);
+        gameScreen = new GameScreen(this);
+        menu = new Menu(this);
+        playing = new Playing(this);
+        settings = new Settings(this);
+    }
+
+    private void start() {
+        gameThread = new Thread(this) {
+        };
+
+        gameThread.start();
     }
 
     public static void main(String[] args) {
-        Game game = new Game(); // Crée une instance de la classe Game.
-        game.run(); // Lance la boucle de jeu.
+
+        Game game = new Game();
+        game.gameScreen.initInputs();
+        game.start();
     }
+
+    @Override
+    public void run() {
+        double timePerFrame = 1000000000.0 / FPS_SET;
+        double timePerUpdate = 1000000000.0 / UPS_SET;
+
+        long lastFrame = System.nanoTime();
+        long lastUpdate = System.nanoTime();
+        long lastTimeCheck = System.currentTimeMillis();
+
+        int frames = 0;
+        int updates = 0;
+
+        long now;
+
+        while (true) {
+
+            now = System.nanoTime();
+
+            // Render
+            if (now - lastFrame >= timePerFrame) {
+                repaint();
+                lastFrame = now;
+                frames++;
+            }
+            // Update
+            if (now - lastUpdate >= timePerUpdate) {
+                lastUpdate = now;
+                updates++;
+            }
+
+            if (System.currentTimeMillis() - lastTimeCheck >= 1000) {
+                System.out.println("FPS: " + frames + " | UPS: " + updates);
+                frames = 0;
+                updates = 0;
+                lastTimeCheck = System.currentTimeMillis();
+            }
+
+        }
+    }
+
+    // Getters and setters :
+    public Render getRender() {
+        return render;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public Playing getPlaying() {
+        return playing;
+    }
+
+    public Settings getSettings() {
+        return settings;
+    }
+
 }
