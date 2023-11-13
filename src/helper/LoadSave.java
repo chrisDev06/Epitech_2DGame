@@ -9,7 +9,7 @@ public class LoadSave {
     public static BufferedImage getSpritesMap(){
         BufferedImage img = null;
 
-        InputStream is  = LoadSave.class.getClassLoader().getResourceAsStream("spritesMap.png");
+        InputStream is  = LoadSave.class.getClassLoader().getResourceAsStream("spriteatlas.png");
         try {
             img = ImageIO.read(is);
         } catch (IOException e) {

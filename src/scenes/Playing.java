@@ -1,22 +1,29 @@
 
 package scenes;
 
-import java.awt.Color;
 import java.awt.Graphics;
 
 import helper.LevelBuild;
 import main.Game;
 import managers.TileManager;
+import objects.Tile;
+import ui.BottomBar;
 
 public class Playing extends GameScene implements SceneMethods {
     private int[][] lvl;
     private TileManager tileManager;
+    private Tile selectedTile;
+
+    private BottomBar bottomBar;
+    private int mouseX, mouseY;
+    private boolean drawSelect;
 
     public Playing(Game game) {
         super(game);
 
         lvl = LevelBuild.getLevelData();
         tileManager = new TileManager();
+        bottomBar = new BottomBar(0, 640, 640, 100,this);
     }
 
     @Override
@@ -27,38 +34,72 @@ public class Playing extends GameScene implements SceneMethods {
                 g.drawImage(tileManager.getSprite(id), x * 32, y * 32, null);
             }
         }
-        g.setColor(Color.red);
-        g.fillRect(0, 0, 640, 640);
+        bottomBar.draw(g);
+        drawSelectedTile(g);
+    
+    }
+
+    private void drawSelectedTile(Graphics g) {
+        if(selectedTile != null && drawSelect) {
+            g.drawImage(selectedTile.getSpirte(), mouseX, mouseY, 32, 32, null);
+        }
+    }
+    public void setSelectedTile(Tile tile) {
+        this.selectedTile = tile;
+        drawSelect = true;
+    }
+
+    public TileManager getTileManager() {
+        return tileManager;
     }
 
     @Override
     public void mouseClicked(int x, int y) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
+        if(y >= 640) {
+            bottomBar.mouseClicked(x, y);
+        }else {
+            changeTile(mouseX, mouseY);
+        }
+
+    }
+
+    private void changeTile(int x, int y) {
+        int tileX = x / 32;
+        int tileY = y / 32;
+
+        lvl[tileY][tileX] = selectedTile.getId();
     }
 
     @Override
     public void mouseMoved(int x, int y) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseMoved'");
+        if(y >= 640) {
+            bottomBar.mouseMoved(x, y);
+            drawSelect = false;
+        } else {
+            drawSelect = true;
+            mouseX = (x / 32) * 32;
+            mouseY = (y / 32) * 32;
+        }
     }
 
     @Override
     public void mousePressed(int x, int y) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
+        if(y >= 640) {
+            bottomBar.mousePressed(x, y);
+        }
     }
 
     @Override
-    public void mouseReleased(int x, int y) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
+    public void mouseReleased(int x, int y){
+            bottomBar.mouseReleased(x, y);
     }
 
     @Override
     public void mouseDragged(int x, int y) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseDragged'");
+        if(y >= 640) {
+        } else{
+            changeTile(x, y);
+        }
     }
 
 }

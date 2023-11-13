@@ -25,6 +25,7 @@ public class MyMouseLister implements MouseListener, MouseMotionListener {
                 game.getPlaying().mouseDragged(e.getX(), e.getY());
                 break;
             case SETTINGS:
+                game.getSettings().mouseDragged(e.getX(), e.getY());
                 break;
             case EDIT:
                 break;
