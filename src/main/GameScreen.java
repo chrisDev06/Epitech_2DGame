@@ -11,6 +11,7 @@ public class GameScreen extends JPanel {
 
     private Game game;
     private Dimension size;
+
     private MyMouseLister myMouseLister;
     private KeyboardLister KeyboardLister;
 
@@ -21,8 +22,19 @@ public class GameScreen extends JPanel {
 
     }
 
+    public void initInputs() {
+        myMouseLister = new MyMouseLister(game);
+        KeyboardLister = new KeyboardLister(game);
+
+        addMouseListener(myMouseLister);
+        addMouseMotionListener(myMouseLister);
+        addKeyListener(KeyboardLister);
+
+        requestFocus();
+    }
+
     private void setPanelSize() {
-        size = new Dimension(640, 740);
+        size = new Dimension(640, 800);
         setMinimumSize(size);
         setPreferredSize(size);
         setMaximumSize(size);
@@ -33,17 +45,6 @@ public class GameScreen extends JPanel {
 
         game.getRender().render(g);
 
-    }
-
-    public void initInputs() {
-        myMouseLister = new MyMouseLister(game);
-        KeyboardLister = new KeyboardLister();
-
-        addMouseListener(myMouseLister);
-        addMouseMotionListener(myMouseLister);
-        addKeyListener(KeyboardLister);
-
-        requestFocus();
     }
 
 }
