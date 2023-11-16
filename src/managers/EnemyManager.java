@@ -1,5 +1,6 @@
 package managers;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import java.awt.image.BufferedImage;
@@ -23,6 +24,8 @@ public class EnemyManager {
     private BufferedImage[] enemyImgs;
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private PathPoint start, end;
+    private int HPbarWidth = 20;
+    private BufferedImage slowEffect;
 
     public EnemyManager(Playing playing, PathPoint start, PathPoint end) {
         this.playing = playing;
@@ -30,12 +33,18 @@ public class EnemyManager {
         this.start = start;
         this.end = end;
 
-        addEnemy(ORC);
-        addEnemy(BAT);
-        addEnemy(KNIGHT);
-        addEnemy(WOLF);
+        loadEffectImg();
+
+        // addEnemy(ORC);
+        // addEnemy(BAT);
+        // addEnemy(KNIGHT);
+        // addEnemy(WOLF);
 
         loadEnemyImgs();
+    }
+
+    private void loadEffectImg() {
+        slowEffect = LoadSave.getSpriteAtlas().getSubimage(32 * 9, 32 * 2, 32, 32);
     }
 
     private void loadEnemyImgs() {
@@ -46,9 +55,36 @@ public class EnemyManager {
     }
 
     public void update() {
-        for (Enemy e : enemies)
-            updateEnemyMove(e);
 
+        updateWaveManager();
+
+        if (isTimeForNewEnemy()) {
+            spawnEnemy();
+        }
+
+        for (Enemy e : enemies)
+            if (e.isAlive()) {
+                updateEnemyMove(e);
+            }
+    }
+
+    private void updateWaveManager() {
+        playing.getWaveManager().update();
+    }
+
+    private void spawnEnemy() {
+        addEnemy(playing.getWaveManager().getNextEnemy());
+    }
+
+    private boolean isTimeForNewEnemy() {
+
+        if (playing.getWaveManager().isTimeForNewEnemy()) {
+            if (playing.getWaveManager().isTimeForNewEnemy()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void updateEnemyMove(Enemy e) {
@@ -164,14 +200,35 @@ public class EnemyManager {
     }
 
     public void draw(Graphics g) {
-        for (Enemy e : enemies)
-            drawEnemy(e, g);
+        for (Enemy e : enemies) {
+            if (e.isAlive()) {
+                drawEnemy(e, g);
+                drawHealthBar(e, g);
+                drawEffects(e, g);
+            }
+        }
+    }
 
+    private void drawEffects(Enemy e, Graphics g) {
+        if (e.isSlowed()) {
+            g.drawImage(slowEffect, (int) e.getX(), (int) e.getY(), null);
+        }
+    }
+
+    private void drawHealthBar(Enemy e, Graphics g) {
+        g.setColor(Color.red);
+        g.fillRect((int) e.getX() + 16 - (getNewBarWidth(e) / 2), (int) e.getY() - 10, getNewBarWidth(e), 3);
+    }
+
+    private int getNewBarWidth(Enemy e) {
+        return (int) (HPbarWidth * e.getHealthBarFloat());
     }
 
     private void drawEnemy(Enemy e, Graphics g) {
         g.drawImage(enemyImgs[e.getEnemyType()], (int) e.getX(), (int) e.getY(), null);
     }
 
-    
+    public ArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
 }

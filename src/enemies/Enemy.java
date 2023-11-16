@@ -5,12 +5,16 @@ import static helperMethods.Constants.Direction.*;
 
 public abstract class Enemy {
 
-    private float x, y;
-    private Rectangle bounds;
-    private int health;
-    private int ID;
-    private int enemyType;
-    private int lastDir;
+    protected float x, y;
+    protected Rectangle bounds;
+    protected int health;
+    protected int maxHealth;
+    protected int ID;
+    protected int enemyType;
+    protected int lastDir;
+    protected boolean alive = true;
+    protected int slowTickLimit = 120;
+    protected int slowTick = 120;
 
     public Enemy(float x, float y, int ID, int enemyType) {
         this.x = x;
@@ -19,10 +23,32 @@ public abstract class Enemy {
         this.enemyType = enemyType;
         bounds = new Rectangle((int) x, (int) y, 32, 32);
         lastDir = -1;
+        setStartHealth();
+    }
+
+    private void setStartHealth() {
+        health = helperMethods.Constants.Enemies.GetStartHealth(enemyType);
+        maxHealth = health;
+    }
+
+    public void hurt(int dmg) {
+        this.health -= dmg;
+        if (health <= 0)
+            alive = false;
+    }
+
+    public void slow() {
+        slowTick = 0;
     }
 
     public void move(float speed, int dir) {
         lastDir = dir;
+
+        if (slowTick < slowTickLimit) {
+            slowTick++;
+            speed *= 0.5f;
+        }
+
         switch (dir) {
             case LEFT:
                 this.x -= speed;
@@ -37,12 +63,23 @@ public abstract class Enemy {
                 this.y += speed;
                 break;
         }
+
+        updateHitbox();
+    }
+
+    private void updateHitbox() {
+        bounds.x = (int) x;
+        bounds.y = (int) y;
     }
 
     public void setPos(int x, int y) {
         // Don't use this one for moving the enemy.
         this.x = x;
         this.y = y;
+    }
+
+    public float getHealthBarFloat() {
+        return health / (float) maxHealth;
     }
 
     public float getX() {
@@ -71,6 +108,14 @@ public abstract class Enemy {
 
     public int getLastDir() {
         return lastDir;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public boolean isSlowed() {
+        return slowTick < slowTickLimit;
     }
 
 }

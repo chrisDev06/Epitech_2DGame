@@ -17,16 +17,10 @@ public class KeyboardLister implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // if (e.getKeyCode() == KeyEvent.VK_A)
-        // GameStates.gameState = MENU;
-        // else if (e.getKeyCode() == KeyEvent.VK_Z)
-        // GameStates.gameState = PLAYING;
-
-        // else if (e.getKeyCode() == KeyEvent.VK_E)
-        // GameStates.gameState = SETTINGS;
-
         if (GameStates.gameState == EDIT) {
             game.getEditor().keyPressed(e);
+        } else if (GameStates.gameState == PLAYING) {
+            game.getPlaying().keyPressed(e);
         }
     }
 

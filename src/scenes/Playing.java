@@ -1,13 +1,18 @@
 package scenes;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import enemies.Enemy;
 import helperMethods.LoadSave;
 import main.Game;
 import managers.EnemyManager;
+import managers.ProjectileManager;
 import managers.TowerManager;
+import managers.WaveManager;
 import objects.PathPoint;
 import objects.Tower;
 import ui.ActionBar;
@@ -20,6 +25,8 @@ public class Playing extends GameScene implements SceneMethods {
 	private int mouseX, mouseY;
 	private EnemyManager enemyManager;
 	private TowerManager towerManager;
+	private WaveManager waveManager;
+	private ProjectileManager projManager;
 	private PathPoint start, end;
 	private Tower selectedTower;
 
@@ -29,9 +36,10 @@ public class Playing extends GameScene implements SceneMethods {
 		loadDefaultLevel();
 
 		actionBar = new ActionBar(0, 640, 640, 160, this);
-
 		enemyManager = new EnemyManager(this, start, end);
 		towerManager = new TowerManager(this);
+		projManager = new ProjectileManager(this);
+		waveManager = new WaveManager(this);
 	}
 
 	private void loadDefaultLevel() {
@@ -49,6 +57,7 @@ public class Playing extends GameScene implements SceneMethods {
 		updateTick();
 		enemyManager.update();
 		towerManager.update();
+		projManager.update();
 	}
 
 	public void setSelectedTower(Tower selectedTower) {
@@ -62,8 +71,15 @@ public class Playing extends GameScene implements SceneMethods {
 		actionBar.draw(g);
 		enemyManager.draw(g);
 		towerManager.draw(g);
-		drawSelectedTower(g);
+		projManager.draw(g);
 
+		drawSelectedTower(g);
+		drawHighlight(g);
+	}
+
+	private void drawHighlight(Graphics g) {
+		g.setColor(Color.WHITE);
+		g.drawRect(mouseX, mouseY, 32, 32);
 	}
 
 	private void drawSelectedTower(Graphics g) {
@@ -128,6 +144,16 @@ public class Playing extends GameScene implements SceneMethods {
 		return tileType == GRASS_TILE;
 	}
 
+	public void shootEnemy(Tower t, Enemy e) {
+		projManager.newProjectile(t, e);
+	}
+
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			selectedTower = null;
+		}
+	}
+
 	@Override
 	public void mouseMoved(int x, int y) {
 		if (y >= 640)
@@ -152,11 +178,19 @@ public class Playing extends GameScene implements SceneMethods {
 
 	@Override
 	public void mouseDragged(int x, int y) {
-
+		
 	}
 
 	public TowerManager getTowerManager() {
 		return towerManager;
+	}
+
+	public EnemyManager getEnemyManager() {
+		return enemyManager;
+	}
+
+	public WaveManager getWaveManager() {
+		return waveManager;
 	}
 
 }
