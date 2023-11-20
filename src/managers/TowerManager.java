@@ -6,11 +6,13 @@ import java.util.ArrayList;
 
 import enemies.Enemy;
 import helperMethods.LoadSave;
+import main.Game;
 import objects.Tower;
 import scenes.Playing;
 
 public class TowerManager {
 
+	private Game game;
 	private Playing playing;
 	private BufferedImage[] towerImgs;
 	private ArrayList<Tower> towers = new ArrayList<>();
@@ -19,6 +21,7 @@ public class TowerManager {
 	public TowerManager(Playing playing) {
 		this.playing = playing;
 		loadTowerImgs();
+		this.game = playing.getGame();
 	}
 
 	private void loadTowerImgs() {
@@ -30,6 +33,7 @@ public class TowerManager {
 
 	public void addTower(Tower selectedTower, int xPos, int yPos) {
 		towers.add(new Tower(xPos, yPos, towerAmount++, selectedTower.getTowerType()));
+		game.getSoundManager().playSound(game.getTowerDeploySound());
 	}
 
 	public void update() {

@@ -2,6 +2,7 @@ package main;
 
 import java.io.File;
 
+import javax.sound.sampled.Clip;
 import javax.swing.JFrame;
 
 import helperMethods.LoadSave;
@@ -27,6 +28,9 @@ public class Game extends JFrame implements Runnable {
     private Editing editing;
     private TileManager tileManager;
 
+    private managers.SoundManager soundManager;
+    private Clip towerDeploySound;
+
     public Game() {
 
         initClasses();
@@ -39,6 +43,17 @@ public class Game extends JFrame implements Runnable {
         pack();
         setVisible(true);
 
+        soundManager = new managers.SoundManager();
+        towerDeploySound = soundManager.loadSound("/managers/deploiementTower.wav");
+
+    }
+
+    public managers.SoundManager getSoundManager() {
+        return soundManager;
+    }
+
+    public Clip getTowerDeploySound() {
+        return towerDeploySound;
     }
 
     private void createDefaultLevel() {
